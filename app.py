@@ -1,15 +1,26 @@
 import streamlit as st
 import pandas as pd
-import os
 
 # Web page configuration
 st.set_page_config(page_title="SRMS IBS Scholarship Calculator", page_icon="🎓", layout="centered")
 
-# Lead database file name
-LEAD_FILE = "leads.csv"
+# --- INSTANT WEB PAGE MEMORY STORAGE ---
+# This initializes a permanent list inside the web page container memory
+if "web_database" not in st.session_state:
+    st.session_state.web_database = [
+        {
+            "Name": "AYUSH",
+            "Mobile": "8171666384",
+            "Course": "BCA",
+            "Percentage": 75.0,
+            "Preferred Visit Day": "Monday",
+            "Scheme": "15% Tuition Waiver",
+            "Discount": "Rs. 23,175 (Total Course Saving)"
+        }
+    ]
 
 # Title & Description
-st.title("🎓 Admission Saarthi Scholarship Eligibility Checker for SRMS IBS , LUCKNOW")
+st.title("🎓 SRMS IBS Scholarship Eligibility Checker")
 st.write("Enter your details below to check your eligible tuition fee scholarship instantly.")
 
 # Form Fields
@@ -36,21 +47,21 @@ if submit_button:
         if course == "BCA":
             if percentage <= 75.0:
                 sch_type = "15% Tuition Fee Waiver (Upto 75% Bracket)"
-                discount = "Rs. 7,725 (Per Year Saving)"
+                discount = "Rs. 23,175 (Total Course Saving)"
             else:
                 sch_type = "Higher Merit Slab"
-                discount = "Rs. 15,000 (Per Year Saving as per 80% rule)"
+                discount = "Rs. 45,000 (Total Course Saving)"
                 
         # 2. BBA Scholarship Logic        
         elif course == "BBA":
             if percentage <= 75.0:
                 sch_type = "10% Tuition Fee Waiver (Upto 75% Bracket)"
-                discount = "Rs. 5,150 (Per Year Saving)"
+                discount = "Rs. 15,450 (Total Course Saving)"
             else:
                 sch_type = "Merit Slab"
                 discount = "As per 12th Marks Policy"
                 
-        # 3. MBA Scholarship Logic (Flat 25% shown directly)
+        # 3. MBA Scholarship Logic
         elif course == "MBA":
             if percentage <= 75.0:
                 sch_type = "25% Tuition Fee Waiver (Upto 75% Graduation)"
@@ -59,9 +70,9 @@ if submit_button:
                 sch_type = "High Merit Bracket"
                 discount = "To be reviewed by Admission Head"
 
-        # Save lead data to DataFrame / CSV (Including Visit Day)
-        new_lead = {
-            "Name": name, 
+        # Append new lead dynamically to the live screen memory
+        new_entry = {
+            "Name": name.upper(), 
             "Mobile": mobile, 
             "Course": course, 
             "Percentage": percentage, 
@@ -69,12 +80,7 @@ if submit_button:
             "Scheme": sch_type, 
             "Discount": discount
         }
-        df = pd.DataFrame([new_lead])
-        
-        if not os.path.isfile(LEAD_FILE):
-            df.to_csv(LEAD_FILE, index=False)
-        else:
-            df.to_csv(LEAD_FILE, mode='a', header=False, index=False)
+        st.session_state.web_database.append(new_entry)
 
         # Show Results to Student
         st.success(f"🎉 Congratulations {name}!")
@@ -84,21 +90,17 @@ if submit_button:
         st.write(f"📅 Your preferred campus visit day (**{visit_day}**) has been shared with the counselor team.")
         st.write("📱 Our admission team will contact you shortly on your number to process the next steps.")
 
-# Admin Panel for Counselors
+# Admin Panel for Counselors (Always updates live on page refresh or submit)
 st.markdown("---")
 if st.checkbox("🔑 Counselor Admin Login"):
     password = st.text_input("Enter Password", type="password")
     if password == "srms123":
-        if os.path.isfile(LEAD_FILE):
-            try:
-                # Error-proof reading: ignores broken rows from previous versions
-                leads_df = pd.read_csv(LEAD_FILE, on_bad_lines='skip')
-                st.write("📊 **Current Student Leads Captured:**")
-                st.dataframe(leads_df)
-                
-                csv_data = leads_df.to_csv(index=False).encode('utf-8')
-                st.download_button("📥 Download Lead Database Excel", data=csv_data, file_name="captured_leads.csv", mime="text/csv")
-            except Exception as e:
-                st.error("The old database file format is broken. Try submitting a new student form first to reset it.")
-        else:
-            st.warning("No leads captured yet.")
+        st.write("📊 🎉 **Current Student Leads Captured (Live on Webpage):**")
+        
+        # Convert memory list directly into on-screen table
+        leads_df = pd.DataFrame(st.session_state.web_database)
+        st.dataframe(leads_df, use_container_width=True)
+        
+        # Immediate direct download link for the entire row system
+        csv_data = leads_df.to_csv(index=False).encode('utf-8')
+        st.download_button("📥 Download Lead Database Excel", data=csv_data, file_name="web_leads.csv", mime="text/csv")
