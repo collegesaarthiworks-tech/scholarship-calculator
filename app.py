@@ -14,7 +14,7 @@ GSHEET_URL = "https://docs.google.com/spreadsheets/d/1lhCLlgirfhbVTZmCGLWS-4ifaw
 if "session_leads_list" not in st.session_state:
     st.session_state.session_leads_list = []
 
-st.title("🎓 SRMS IBS Scholarship Eligibility Checker")
+st.title("🎓 ADMISSION SARTHI Scholarship Eligibility Checker FOR SRMS IBS, LUCKNOW")
 st.write("Enter your details below to check your eligible tuition fee scholarship instantly.")
 
 with st.form("scholarship_form", clear_on_submit=True):
