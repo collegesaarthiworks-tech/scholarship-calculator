@@ -1,18 +1,22 @@
 import streamlit as st
 import pandas as pd
 import requests
+import json
 
-# Set up web page look
 st.set_page_config(page_title="SRMS IBS Scholarship Calculator", page_icon="🎓", layout="centered")
 
-# --- APNI GOOGLE SHEET KI LINK YAHA DALREIN ---
-# Is double quote ke andar apni share ki hui google sheet ki poori link paste kar dein
+# 🔗 PASTE YOUR COPIED WEB APP URL FROM STEP 2 INSIDE THESE QUOTES
+WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyJ5QK5wL3w8gUrtfjtEjmOFTuI4_OJiq5jnxY5dNWfgpuuR8mAKmqYBm2fBJ3-ZXMn/exec"
+
+# 🔗 PASTE YOUR GOOGLE SHEET DISPLAY LINK FOR EASY ACCESS
 GSHEET_URL = "https://docs.google.com/spreadsheets/d/1lhCLlgirfhbVTZmCGLWS-4ifawuf9942-u3PH5WGc2Q/edit?usp=sharing"
+
+if "session_leads_list" not in st.session_state:
+    st.session_state.session_leads_list = []
 
 st.title("🎓 SRMS IBS Scholarship Eligibility Checker")
 st.write("Enter your details below to check your eligible tuition fee scholarship instantly.")
 
-# Form Fields
 with st.form("scholarship_form", clear_on_submit=True):
     name = st.text_input("Full Name", placeholder="Enter student name")
     mobile = st.text_input("Mobile Number", max_chars=10, placeholder="Enter 10-digit mobile number")
@@ -22,7 +26,6 @@ with st.form("scholarship_form", clear_on_submit=True):
     
     submit_button = st.form_submit_button("Check My Scholarship Amount")
 
-# System Processing
 if submit_button:
     if not name or not mobile or len(mobile) < 10 or not mobile.isdigit():
         st.error("⚠️ Please enter a valid Name and 10-digit Mobile Number.")
@@ -46,17 +49,33 @@ if submit_button:
                 sch_type = "25% Tuition Fee Waiver (Upto 75% Graduation)"
                 discount = "Rs. 24,821 (Per Year Saving)"
 
-        # Web storage execution logic
+        payload = {
+            "name": name.upper(),
+            "mobile": mobile,
+            "course": course,
+            "percentage": percentage,
+            "visit_day": visit_day,
+            "scheme": sch_type,
+            "discount": discount
+        }
+        
+        # Instantly pushes data straight to your sheet grid rows live
+        try:
+            requests.post(WEB_APP_URL, data=json.dumps(payload))
+            st.session_state.session_leads_list.append(payload)
+        except:
+            pass
+
         st.success(f"🎉 Congratulations {name}!")
         st.balloons()
         st.metric(label="Your Eligible Discount Amount", value=discount)
         st.info(f"📋 Scheme Type: {sch_type}")
+        st.write(f"📅 Preferred Campus Visit: **{visit_day}**")
         st.write("📱 Our admission team will contact you shortly on your number to process the next steps.")
 
-# Admin Panel for Counselors
 st.markdown("---")
 if st.checkbox("🔑 Counselor Admin Login"):
     password = st.text_input("Enter Password", type="password")
     if password == "srms123":
-        st.write("📊 **Lead Sheet Database Access:**")
-        st.write(f"🔗 [Click here to open and view all live leads in Excel format]({GSHEET_URL})")
+        st.write("📂 **Permanent Master Google Sheets Database:**")
+        st.write(f"🔗 [Click here to open and watch your spreadsheet rows fill live!]({GSHEET_URL})")
