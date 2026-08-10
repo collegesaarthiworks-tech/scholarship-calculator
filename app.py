@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # Web page configuration
-st.set_page_config(page_title="SRMS IBS Scholarship Calculator", page_icon="🎓", layout="centered")
+st.set_page_config(page_title="🎓ADMISSION SAARTHI Scholarship Eligibility Checkerfor  SRMS IBS,LUCKNOW", page_icon="🎓", layout="centered")
 
 # --- INSTANT WEB PAGE MEMORY STORAGE ---
 # This initializes a permanent list inside the web page container memory
@@ -20,7 +20,7 @@ if "web_database" not in st.session_state:
     ]
 
 # Title & Description
-st.title("🎓 SRMS IBS Scholarship Eligibility Checker")
+st.title("🎓ADMISSION SAARTHI Scholarship Eligibility Checkerfor  SRMS IBS,LUCKNOW")
 st.write("Enter your details below to check your eligible tuition fee scholarship instantly.")
 
 # Form Fields
