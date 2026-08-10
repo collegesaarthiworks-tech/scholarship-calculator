@@ -3,13 +3,13 @@ import pandas as pd
 import os
 
 # Web page configuration
-st.set_page_config(page_title="ADMISSION SAARTHI Scholarship Calculator FOR SRMS IB ,LUCKNOW", page_icon="🎓", layout="centered")
+st.set_page_config(page_title="SRMS IBS Scholarship Calculator", page_icon="🎓", layout="centered")
 
 # Lead database file name
 LEAD_FILE = "leads.csv"
 
 # Title & Description
-st.title("🎓 Admission Saarthi Scholarship Eligibility Checker For SRMS IB, LUCKNOW")
+st.title("🎓 Admission Saarthi Scholarship Eligibility Checker for SRMS IBS , LUCKNOW")
 st.write("Enter your details below to check your eligible tuition fee scholarship instantly.")
 
 # Form Fields
@@ -19,7 +19,7 @@ with st.form("scholarship_form", clear_on_submit=True):
     course = st.selectbox("Select Course", ["BCA", "BBA", "MBA"])
     percentage = st.number_input("12th / Graduation Percentage (Upto 75%)", min_value=0.0, max_value=100.0, value=70.0, step=0.1)
     
-    # NEW FIELD: Campus Visit Dropdown
+    # Campus Visit Dropdown
     visit_day = st.selectbox("Preferred Campus Visit Day", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"])
     
     submit_button = st.form_submit_button("Check My Scholarship Amount")
@@ -90,10 +90,15 @@ if st.checkbox("🔑 Counselor Admin Login"):
     password = st.text_input("Enter Password", type="password")
     if password == "srms123":
         if os.path.isfile(LEAD_FILE):
-            leads_df = pd.read_csv(LEAD_FILE)
-            st.write("📊 **Current Student Leads Captured:**")
-            st.dataframe(leads_df)
-            csv_data = leads_df.to_csv(index=False).encode('utf-8')
-            st.download_button("📥 Download Lead Database Excel", data=csv_data, file_name="captured_leads.csv", mime="text/csv")
+            try:
+                # Error-proof reading: ignores broken rows from previous versions
+                leads_df = pd.read_csv(LEAD_FILE, on_bad_lines='skip')
+                st.write("📊 **Current Student Leads Captured:**")
+                st.dataframe(leads_df)
+                
+                csv_data = leads_df.to_csv(index=False).encode('utf-8')
+                st.download_button("📥 Download Lead Database Excel", data=csv_data, file_name="captured_leads.csv", mime="text/csv")
+            except Exception as e:
+                st.error("The old database file format is broken. Try submitting a new student form first to reset it.")
         else:
             st.warning("No leads captured yet.")
