@@ -9,7 +9,7 @@ st.set_page_config(page_title="ADMISSION SAARTHI Scholarship Calculator FOR SRMS
 LEAD_FILE = "leads.csv"
 
 # Title & Description
-st.title("🎓 SRMS IBS Scholarship Eligibility Checker")
+st.title("🎓 Admission Saarthi Scholarship Eligibility Checker For SRMS IB, LUCKNOW")
 st.write("Enter your details below to check your eligible tuition fee scholarship instantly.")
 
 # Form Fields
